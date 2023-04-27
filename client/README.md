@@ -86,9 +86,5 @@ To run this project, you will need to add the following environment variables to
  `REACT_APP_MEASUREMENT_ID`
 
 
-##  👋 Contact Me
 
-If any query please contact on 
-
-[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/dhavaln-patel)
 
