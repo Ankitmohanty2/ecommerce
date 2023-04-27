@@ -1,12 +1,6 @@
 
 # Flipkart Clone MERN APP
 
-[Dhaval Patel's](https://github.com/dhavalnpatel/) Flipkart Clone is done with top-notch features for the entrepreneur startups like Flipkart.
-- It has strong authentication system  with SMS OTP verification. 
-- It has Paytm Integration so that it can get money from anywhere.
-
-    
-
 ## Features
 
 - Login / Signup with Mobile Number
@@ -20,11 +14,6 @@
 - Add / Remove item to Wishlist
 - Make Order with COD / Online Payment
 - View Orders History 
-
-
-## 🚀 LIVE APP
-
-https://flipkart-web.vercel.app/
 
 
 ##  🖥️ Tech Stack
@@ -42,19 +31,6 @@ https://flipkart-web.vercel.app/
 ![App Screenshot 4](https://images2.imgbox.com/60/13/AjICajHg_o.png)
 ![App Screenshot 5](https://images2.imgbox.com/3e/91/Bg87tgUJ_o.png)
 
-
-## Installation
-
-Clone the project
-
-```bash
-  git clone https://github.com/dhavalnpatel/flipkart-clone.git
-```
-
-Go to the project directory
-
-```bash
-  cd flipkart-clone
 ```
 
 **For Client and Server both** 
