@@ -28,9 +28,9 @@ function Footer() {
         <a
           className={classes.link}
           target="_blank"
-          href="https://github.com/dhavalCode"
+          href="https://github.com/Ankittap2001"
         >
-          Dhaval Patel
+          Ankit Mohanty
         </a>
         <span style={{fontSize:14}}>&#128153;</span>
       </Typography>
