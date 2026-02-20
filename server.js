@@ -8,7 +8,6 @@ const useRouter = require("./routes/router");
 
 const app = express();
 
-//app uses
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
