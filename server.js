@@ -22,7 +22,8 @@ app.use("/api", useRouter);
 
 const port = process.env.PORT || 5000;
 
-if (process.env.NODE_ENV == "production") {
+// Static React build — only when self-hosting (not on Vercel; Vercel serves static files separately)
+if (process.env.NODE_ENV === "production" && !process.env.VERCEL) {
   app.use((req, res, next) => {
     if (req.header("x-forwarded-proto") !== "https") {
       res.redirect(`https://${req.header("host")}${req.url}`);
@@ -55,4 +56,8 @@ if (process.env.NODE_ENV == "production") {
   });
 }
 
-app.listen(port, () => console.log(`Server is running at ${port}`));
+module.exports = app;
+
+if (require.main === module) {
+  app.listen(port, () => console.log(`Server is running at ${port}`));
+}

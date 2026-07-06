@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "proxy": "http://localhost:5000",
-  "homepage": "https://flipkart-web.vercel.app",
+  "homepage": ".",
   "engines": {
     "node": "24.x"
   },
