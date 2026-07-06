@@ -46,7 +46,7 @@ export const getWishlistItems = () => async (dispatch, getState) => {
       const { data } = await axios.get(`/wishlist/get-items/${user._id}`);
       const wishlistItems = [];
 
-      data?.map((value) => {
+      data?.forEach((value) => {
         wishlistItems.push(value.productDetails[0]);
       });
       dispatch({

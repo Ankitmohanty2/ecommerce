@@ -71,10 +71,10 @@ export const getCartItems = () => async (dispatch, getState) => {
     try {
       const { data } = await axios.get(`/cart/get-items/${user._id}`);
       if (data.length > 0) {
-        data?.map((value) => {
+        data?.forEach((value) => {
           var isExist = false;
           cartItems.forEach((item) => {
-            if (item._id == value.productDetails[0]._id) {
+            if (item._id === value.productDetails[0]._id) {
               isExist = true;
             }
           });

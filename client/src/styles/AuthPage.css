@@ -330,6 +330,11 @@
   cursor: pointer;
   margin-left: 4px;
   text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
 }
 
 .auth-switch__link:hover {

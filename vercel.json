@@ -1,5 +1,9 @@
 {
   "version": 2,
+  "env": {
+    "CI": "false",
+    "DISABLE_ESLINT_PLUGIN": "true"
+  },
   "builds": [
     {
       "src": "package.json",

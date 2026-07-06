@@ -81,7 +81,7 @@ function OrdersPage() {
     setTimeout(() => {
       setIsLoading(false);
     }, 700);
-  }, [isAuthenticate]);
+  }, [isAuthenticate, dispatch, history]);
 
 
   return isLoading ? (
@@ -112,7 +112,7 @@ function OrdersPage() {
         </Grid>
       ) : (
         <Box className={classes.emptyComponent}>
-          <img src={noOrdersUrl} className={classes.image} />
+          <img src={noOrdersUrl} className={classes.image} alt="" />
           <Typography style={{ fontSize: 22, fontWeight: 600 }}>
             You have no orders
           </Typography>

@@ -63,7 +63,7 @@ function Signup() {
     if (!hasError) {
       completeSignup();
     }
-  }, [submitCount]);
+  }, [submitCount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const validateEmail = (email) => {
     if (email === "") {
@@ -268,15 +268,13 @@ function Signup() {
 
       <p className="auth-switch">
         Already have an account?
-        <a
+        <button
+          type="button"
           className="auth-switch__link"
-          role="button"
-          tabIndex={0}
           onClick={() => dispatch(setIsLogin(true))}
-          onKeyDown={(e) => e.key === "Enter" && dispatch(setIsLogin(true))}
         >
           Login
-        </a>
+        </button>
       </p>
     </div>
   );

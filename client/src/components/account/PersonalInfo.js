@@ -121,7 +121,7 @@ function PersonalInfo() {
         setIsEditPInfo(false);
       }
     }
-  }, [saveCountPInfo]);
+  }, [saveCountPInfo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (initial.current === true) {
@@ -143,13 +143,12 @@ function PersonalInfo() {
         setIsEditEmail(false);
       }
     }
-  }, [saveCountEmail]);
+  }, [saveCountEmail]); // eslint-disable-line react-hooks/exhaustive-deps
 
   //reg for name
 
   const regName = /^[a-zA-Z]+$/;
-  const regEmail =
-    /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+  const regEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const validateName = (name, fieldName) => {
     if (name === "") {

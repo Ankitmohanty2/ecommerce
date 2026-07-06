@@ -13,11 +13,46 @@ import ToastMessageContainer from "../components/ToastMessageContainer";
 
 import "../styles/ProductPage.css";
 
+function SimilarProductsSection({ product, id }) {
+  const [similarLoading, setSimilarLoading] = useState(false);
+  const [similarProducts, setSimilarProducts] = useState([]);
+
+  useEffect(() => {
+    if (!product?.category || String(product?._id) !== String(id)) {
+      setSimilarProducts([]);
+      setSimilarLoading(false);
+      return;
+    }
+
+    setSimilarLoading(true);
+    fetchSimilarProducts(product.category, product._id, 4)
+      .then(setSimilarProducts)
+      .finally(() => setSimilarLoading(false));
+  }, [product, id]);
+
+  if (!similarLoading && similarProducts.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="product-page__similar" aria-busy={similarLoading}>
+      <h2 className="product-page__similar-title">You may also like</h2>
+      <div className="product-page__similar-grid">
+        {similarLoading
+          ? Array.from({ length: 4 }, (_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))
+          : similarProducts.map((item) => (
+              <ProductCard key={item._id} product={item} />
+            ))}
+      </div>
+    </section>
+  );
+}
+
 function ProductPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [similarLoading, setSimilarLoading] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
-  const [similarProducts, setSimilarProducts] = useState([]);
   const { product } = useSelector((state) => state.productReducer);
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -38,8 +73,6 @@ function ProductPage() {
   useEffect(() => {
     setIsLoading(true);
     setActiveImage(0);
-    setSimilarProducts([]);
-    setSimilarLoading(false);
     dispatch(getProductById(id));
   }, [dispatch, id]);
 
@@ -51,19 +84,6 @@ function ProductPage() {
     if (product && Object.keys(product).length === 0) {
       setIsLoading(false);
     }
-  }, [product, id]);
-
-  useEffect(() => {
-    if (!product?.category || String(product?._id) !== String(id)) {
-      setSimilarProducts([]);
-      setSimilarLoading(false);
-      return;
-    }
-
-    setSimilarLoading(true);
-    fetchSimilarProducts(product.category, product._id, 4)
-      .then(setSimilarProducts)
-      .finally(() => setSimilarLoading(false));
   }, [product, id]);
 
   const addItemToCart = () => {
@@ -191,20 +211,7 @@ function ProductPage() {
           </div>
         </div>
 
-        {(similarLoading || similarProducts.length > 0) && (
-          <section className="product-page__similar" aria-busy={similarLoading}>
-            <h2 className="product-page__similar-title">You may also like</h2>
-            <div className="product-page__similar-grid">
-              {similarLoading
-                ? Array.from({ length: 4 }, (_, i) => (
-                    <ProductCardSkeleton key={i} />
-                  ))
-                : similarProducts.map((item) => (
-                    <ProductCard key={item._id} product={item} />
-                  ))}
-            </div>
-          </section>
-        )}
+        <SimilarProductsSection product={product} id={id} />
       </div>
 
       <ToastMessageContainer />

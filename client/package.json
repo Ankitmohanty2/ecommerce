@@ -35,6 +35,7 @@
     "prebuild": "npx --yes update-browserslist-db@latest",
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:vercel": "CI=false DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

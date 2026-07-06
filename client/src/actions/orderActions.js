@@ -4,7 +4,7 @@ import axios from "../adapters/axios";
 export const setOrderItems = (cartItems) => {
   let orderItems = [];
   if (cartItems) {
-    cartItems.map((item) => {
+    cartItems.forEach((item) => {
       orderItems.push({
         productId: item._id,
         qty: item.qty,

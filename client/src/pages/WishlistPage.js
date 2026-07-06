@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import { getWishlistItems } from "../actions/wishlistActions";
 import Wishlist from "../components/wishlist/Wishlist";

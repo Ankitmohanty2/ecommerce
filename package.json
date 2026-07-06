@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "yarn install && cd client && yarn install && yarn build",
-    "vercel-build": "cd client && npm install && npm run build",
+    "vercel-build": "cd client && npm install && npm run build:vercel",
     "start": "node server.js",
     "dev": "nodemon server.js",
     "server": "nodemon server.js",

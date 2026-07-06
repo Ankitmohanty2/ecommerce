@@ -45,7 +45,7 @@ function Login() {
     if (!hasError) {
       completeLogin();
     }
-  }, [submitCount]);
+  }, [submitCount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const validateEmail = (email) => {
     if (email === "") {
@@ -193,15 +193,13 @@ function Login() {
 
       <p className="auth-switch">
         New to Vixen?
-        <a
+        <button
+          type="button"
           className="auth-switch__link"
-          role="button"
-          tabIndex={0}
           onClick={() => dispatch(setIsLogin(false))}
-          onKeyDown={(e) => e.key === "Enter" && dispatch(setIsLogin(false))}
         >
           Create an account
-        </a>
+        </button>
       </p>
     </div>
   );

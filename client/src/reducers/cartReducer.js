@@ -36,19 +36,17 @@ const cartReducer = (state = initialState, action) => {
         cartItems: [],
       };
 
-    case actionType.UPDATE_QTY:
-      let index = 0;
-      state.cartItems.map((product, i) => {
-        if (product._id === action.payload.productId) {
-          index = i;
-        }
-      });
+    case actionType.UPDATE_QTY: {
+      const index = state.cartItems.findIndex(
+        (product) => product._id === action.payload.productId
+      );
       state.cartItems[index].qty = action.payload.qty;
       return {
         ...state,
         cartItems: state.cartItems,
         stateChangeNotifyCounter: state.stateChangeNotifyCounter + 1,
       };
+    }
     case actionType.SET_CART_ITEMS:
       return {
         ...state,
