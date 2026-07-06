@@ -1,14 +1,20 @@
 const express = require("express");
+const cors = require("cors");
 var cookieParser = require("cookie-parser");
 
-require("dotenv").config({ path: "./config/.env" });
-
+require("dotenv").config({ path: "./.env" });
 
 require("./config/DBConnection");
 const useRouter = require("./routes/router");
 
 const app = express();
 
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -42,7 +48,7 @@ if (process.env.NODE_ENV == "production") {
     express.static(path.join(__dirname, "client", "build", "favicon.ico"))
   );
 
-  app.use(express.static(path.join(__dirname, "../client/build")));
+  app.use(express.static(path.join(__dirname, "client", "build")));
 
   app.get("/*", (req, res) => {
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));

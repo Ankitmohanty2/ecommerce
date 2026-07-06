@@ -22,11 +22,15 @@ const {
   signup,
   login,
   logout,
+  loginWithEmail,
   loginWithMobileNumber,
+  isExistEmail,
   isExistPhone,
   authentication,
   updateUserInfo,
   updateEmail,
+  // sendOtpToEmail,
+  // verifyOtpForEmail,
 } = require("../controllers/user-controller");
 
 const {
@@ -45,14 +49,26 @@ const {
   paytmDataResponse,
 } = require("../controllers/payment-controller");
 
+const {
+  listByCategory,
+  searchProducts,
+  getProduct,
+  getByBarcode,
+} = require("../controllers/hm-controller");
+
 const router = express.Router();
 
 //User Account related routes
 
 router.post("/accounts/signup", signup);
 router.post("/accounts/login", login);
+router.post("/accounts/login-with-email", loginWithEmail);
 router.post("/accounts/login-with-phone", loginWithMobileNumber);
+router.post("/accounts/check-email", isExistEmail);
 router.post("/accounts/check-phone", isExistPhone);
+// Email OTP routes disabled — uncomment when re-enabling verification
+// router.post("/accounts/send-email-otp", sendOtpToEmail);
+// router.post("/accounts/verify-email-otp", verifyOtpForEmail);
 router.get("/accounts/authentication", authentication);
 router.get("/accounts/logout", logout);
 router.patch("/accounts/update-user-info", updateUserInfo);
@@ -64,6 +80,12 @@ router.get("/products/get-products", getProducts);
 router.get("/products/get-products/:categoryName", getProductsByCategory);
 router.get("/products/get-product/:id", getProductById);
 router.get("/products/add-product", addProduct);
+
+// H&M product proxy (RapidAPI)
+router.get("/hm/products", listByCategory);
+router.get("/hm/search", searchProducts);
+router.get("/hm/barcode/:code", getByBarcode);
+router.get("/hm/products/:code", getProduct);
 
 //Cart related routes
 router.post("/cart/add-item", addItem);

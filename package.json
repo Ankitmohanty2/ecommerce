@@ -1,13 +1,16 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "Fullstack flipkart clone web application",
+  "description": "Minimalist Indian ecommerce web application",
   "main": "server.js",
   "repository": "https://github.com/dhavalCode/flipkart-clone",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "yarn install && cd client && yarn install && yarn build",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "server": "nodemon server.js",
+    "seed": "node config/seedProducts.js"
   },
   "author": "Dhaval Patel",
   "engines": {
@@ -23,6 +26,10 @@
     "https": "^1.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.0.4",
+    "nodemailer": "^9.0.3",
     "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }
