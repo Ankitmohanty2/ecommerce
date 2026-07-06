@@ -1,138 +1,106 @@
-import React, { useState } from "react";
-import clsx from "clsx";
-import { Box, makeStyles, Menu, MenuItem, Typography } from "@material-ui/core";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
+import React, { useState, useRef, useEffect } from "react";
 import { useDispatch } from "react-redux";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { deleteAddress } from "../../actions/addressActions";
 import toastMessage from "../../utils/toastMessage";
 
-const useStyles = makeStyles((theme) => ({
-  card: {
-    color: "#2874f0",
-    padding: "16px",
-    border: "1px solid #e0e0e0",
-    background: "#fff",
-    borderRadius: "2px",
-    margin: "30px 0",
-  },
-  addressCard: {
-    display: "flex",
-    alignItems: "start",
-    justifyContent: "space-between",
-    fontSize: 14,
-  },
-  text: {
-    fontSize: 14,
-    color: "#212121",
-    marginTop: 10,
-    maxWidth: "90%",
-  },
-  label: {
-    display: "inline-block",
-    textTransform: "uppercase",
-    fontSize: "11px",
-    color: "#878787",
-    verticalAlign: "middle",
-    padding: "4px 7px",
-    borderRadius: "2px",
-    backgroundColor: "#f0f0f0",
-    fontWeight: 500,
-    marginBottom: 5,
-  },
-  menuItem: {
-    fontSize: 14,
-  },
-}));
-
-function AddressCard({ address, isCheckout = false }) {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const classes = useStyles();
+function AddressCard({
+  address,
+  isCheckout = false,
+  selectable = false,
+  selected = false,
+  onSelect,
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
   const dispatch = useDispatch();
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = (e) => {
-    if (e.target.id === "delete") {
-      dispatch(deleteAddress(address._id));
-      toastMessage("Your address has been deleted successfully!", "success");
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
     }
-    setAnchorEl(null);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
+
+  const handleDelete = () => {
+    dispatch(deleteAddress(address._id));
+    toastMessage("Address deleted successfully", "success");
+    setMenuOpen(false);
   };
 
+  const typeLabel = address.addressType === "H" ? "Home" : "Work";
+
   return (
-    <>
-      <Box
-        className={
-          isCheckout
-            ? classes.addressCard
-            : clsx(classes.card, classes.addressCard)
-        }
-        style={isCheckout ? { marginTop: 20 } : {}}
-      >
-        <Box>
-          {!isCheckout && (
-            <span className={classes.label}>
-              {address.addressType === "H" ? "Home" : "Work"}
-            </span>
-          )}
-          <Typography className={classes.text} style={{ fontWeight: 600 }}>
+    <article
+      className={`address-card ${selectable ? "address-card--selectable" : ""} ${
+        selected ? "address-card--selected" : ""
+      }`}
+      onClick={selectable ? onSelect : undefined}
+      onKeyDown={
+        selectable
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") onSelect?.();
+            }
+          : undefined
+      }
+      role={selectable ? "button" : undefined}
+      tabIndex={selectable ? 0 : undefined}
+    >
+      {selected && <span className="address-card__selected-mark" aria-hidden="true">✓</span>}
+
+      <div className="address-card__top">
+        <div>
+          <span className="address-card__badge">{typeLabel}</span>
+          <p className="address-card__name">
             {address.name}
-            {isCheckout && (
-              <span style={{ margin: "0 15px" }} className={classes.label}>
-                {address.addressType === "H" ? "Home" : "Work"}
-              </span>
-            )}
-            <span style={{ marginLeft: 10 }}>{address.number}</span>
-          </Typography>
-          <Typography className={classes.text}>
-            {address.houseAddress}, {address.locality}, {address.city},{" "}
-            {address.state} - 
-            <span style={{ fontWeight: 600 }}> {address.pincode}</span>
-          </Typography>
-        </Box>
+            <span className="address-card__phone">{address.number}</span>
+          </p>
+          <p className="address-card__line">
+            {address.houseAddress}, {address.locality}, {address.city}, {address.state}
+            {" — "}
+            <span className="address-card__pin">{address.pincode}</span>
+          </p>
+          {address.landmark && (
+            <p className="address-card__line">Landmark: {address.landmark}</p>
+          )}
+        </div>
+
         {!isCheckout && (
-          <Box>
-            <MoreVertIcon
-              style={{ color: "#212121", opacity: 0.6, cursor: "pointer" }}
-              aria-controls="address-menu"
-              aria-haspopup="true"
-              onClick={handleClick}
-            />
-            <Menu
-              id="address-menu"
-              anchorEl={anchorEl}
-              keepMounted
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "center",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "center",
+          <div ref={menuRef} style={{ position: "relative" }}>
+            <button
+              type="button"
+              className="address-card__menu-btn"
+              aria-label="Address options"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen(!menuOpen);
               }}
             >
-              <MenuItem
-                id="edit"
-                className={classes.menuItem}
-                onClick={handleClose}
-              >
-                Edit
-              </MenuItem>
-              <MenuItem
-                id="delete"
-                className={classes.menuItem}
-                onClick={handleClose}
-              >
-                Delete
-              </MenuItem>
-            </Menu>
-          </Box>
+              <MoreVertIcon style={{ fontSize: 20 }} />
+            </button>
+            {menuOpen && (
+              <div className="address-card__menu">
+                <button type="button" className="address-card__menu-item" onClick={() => setMenuOpen(false)}>
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className="address-card__menu-item address-card__menu-item--danger"
+                  onClick={handleDelete}
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
         )}
-      </Box>
-    </>
+      </div>
+    </article>
   );
 }
 

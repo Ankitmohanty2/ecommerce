@@ -1,499 +1,310 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
-import {
-  Box,
-  makeStyles,
-  Typography,
-  Grid,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  Button,
-} from "@material-ui/core";
-import clsx from "clsx";
+import { Link, useHistory } from "react-router-dom";
 import AddIcon from "@material-ui/icons/Add";
 
 import axios from "../adapters/axios";
 import { clearCart, getCartItems } from "../actions/cartActions";
 import { getAddresses } from "../actions/addressActions";
 import { setOrderItems } from "../actions/orderActions";
-
-import { shieldIcon, superCoin } from "../constants/data";
 import { post } from "../utils/paytm";
 import useQuery from "../hooks/useQuery";
 
 import TotalView from "../components/cart/TotalView";
 import AddressCard from "../components/address/AddressCard";
-import LoaderSpinner from "../components/LoaderSpinner";
+import Footer from "../components/footer/Footer";
 import ToastMessageContainer from "../components/ToastMessageContainer";
 
-const useStyle = makeStyles((theme) => ({
-  component: {
-    marginTop: 55,
-    padding: "30px 135px",
-    display: "flex",
-    [theme.breakpoints.down("sm")]: {
-      padding: "15px 0",
-    },
-  },
-  leftComponent: {
-    // width: '67%',
-    paddingRight: 15,
-    [theme.breakpoints.down("sm")]: {
-      marginBottom: 15,
-    },
-  },
-  header: {
-    padding: "15px 24px",
-    background: "#fff",
-  },
-  bottom: {
-    padding: "16px 22px",
-    background: "#fff",
-    boxShadow: "0 -2px 10px 0 rgb(0 0 0 / 10%)",
-    borderTop: "1px solid #f0f0f0",
-  },
-  loginComponent: {
-    backgroundColor: "#fff",
-    padding: "15px",
-    display: "flex",
-  },
-  addressComponent: {
-    backgroundColor: "#fff",
-    paddingBottom: 15,
-    margin: "20px 0px",
-  },
-  activeComponent: {
-    display: "flex",
-    alignItems: "center",
-    color: "#fff",
-    backgroundColor: "#2874f0",
-    padding: "15px 10px",
-    fontWeight: 600,
-    fontSize: 18,
-  },
-  shieldIcon: {
-    width: 29,
-    height: 36,
-    marginRight: 20,
-  },
-  para: {
-    fontSize: 14,
-    fontWeight: 600,
-    lineHeight: 1.29,
-    display: "block",
-    marginLeft: 0,
-    color: "#878787",
-  },
-  stepCount: {
-    fontSize: 12,
-    color: "#2874f0",
-    backgroundColor: "#f0f0f0",
-    borderRadius: 2,
-    padding: "3px 7px",
-    verticalAlign: "baseline",
-    marginRight: 17,
-  },
-  grayText: {
-    color: "#878787",
-    fontSize: "16px",
-    fontWeight: 500,
-    marginBottom: "6px",
-    textTransform: "uppercase",
-  },
-  loginText: {
-    color: "#212121",
-    fontSize: 14,
-    fontWeight: 600,
-    marginLeft: 37,
-    marginTop: 7,
-  },
-  actionBtn: {
-    display: "block",
-    background: "#fb641b",
-    color: "#fff",
-    fontWeight: 600,
-    fontSize: 14,
-    borderRadius: 2,
-    height: 40,
-    width: 170,
-    marginTop: 5,
-  },
-  changeBtn: {
-    padding: "0 32px",
-    height: "40px",
-    borderRadius: "2px",
-    border: "1px solid #e0e0e0",
-    color: "#2874f0",
-    fontSize: "14px",
-    fontWeight: 500,
-    background: "#fff",
-    marginLeft: "auto",
-    cursor: "pointer",
-    textTransform: "uppercase",
-  },
-  addBtn: {
-    display: "flex",
-    color: "#2874f0",
-    fontWeight: 500,
-    padding: "16px 16px",
-    borderBottom: "1px solid #f0f0f0",
-    cursor: "pointer",
-  },
-  addressText: {
-    fontSize: 14,
-    textTransform: "none",
-    padding: "10px 10px 0 37px",
-    color: "#212121",
-  },
-}));
+import "../styles/CartPage.css";
+import "../styles/CheckoutPage.css";
+import "../styles/AddressPage.css";
 
-const CheckoutPage = () => {
-  const [activeComponent, setActiveComponent] = useState({
-    address: true,
-    payment: false,
-  });
-  const [selectedAddr, setSelectedAddr] = useState();
-  const [paymentMode, setPaymentMode] = useState();
-  const [isLoading, setIsLoading] = useState(true);
-  const classes = useStyle();
+function CheckoutPage() {
+  const [step, setStep] = useState("address");
+  const [selectedAddr, setSelectedAddr] = useState(null);
+  const [paymentMode, setPaymentMode] = useState("");
+  const [placing, setPlacing] = useState(false);
 
   const { cartItems } = useSelector((state) => state.cartReducer);
   const { isAuthenticate, user } = useSelector((state) => state.userReducer);
   const { addresses } = useSelector((state) => state.addressReducer);
-  const { orderItems, totalAmount } = useSelector(
-    (state) => state.orderReducer
-  );
-  const dispatch = useDispatch();
+  const { orderItems, totalAmount } = useSelector((state) => state.orderReducer);
 
+  const dispatch = useDispatch();
   const history = useHistory();
   const query = useQuery();
 
   useEffect(() => {
-    //check if request from cart page or not
-    if (query.get("init") != "true") {
+    if (query.get("init") !== "true") {
       history.replace("/cart");
+      return;
     }
-
-    if (isAuthenticate) {
-      dispatch(getCartItems());
-      dispatch(getAddresses());
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
-    } else {
-      history.replace("/login?ref=checkout?init=true");
+    if (!isAuthenticate) {
+      history.replace("/login?ref=checkout&init=true");
+      return;
     }
-  }, [isAuthenticate]);
+    dispatch(getCartItems());
+    dispatch(getAddresses());
+  }, [isAuthenticate, dispatch, history, query]);
 
   useEffect(() => {
     dispatch(setOrderItems(cartItems));
-  }, [cartItems]);
+  }, [cartItems, dispatch]);
 
   useEffect(() => {
-    if (cartItems == "") {
-      window.location.replace("/");
+    if (addresses.length > 0 && !selectedAddr) {
+      setSelectedAddr(addresses[0]);
     }
-  }, []);
+  }, [addresses, selectedAddr]);
 
-  const handleChange = () => {
-    setActiveComponent({
-      address: true,
-      payment: false,
-    });
-  };
+  useEffect(() => {
+    if (isAuthenticate && !cartItems.length) {
+      history.replace("/cart");
+    }
+  }, [cartItems.length, isAuthenticate, history]);
 
-  const deliverHere = (address) => {
-    setActiveComponent({
-      address: false,
-      payment: true,
-    });
-    setSelectedAddr(address);
-  };
-
-  const changePaymentMode = (e) => {
-    setPaymentMode(e.target.value);
+  const continueToPayment = () => {
+    if (!selectedAddr) return;
+    setStep("payment");
   };
 
   const confirmOrder = async () => {
-    if (paymentMode == "cash") {
-      try {
+    if (!paymentMode || !selectedAddr) return;
+    setPlacing(true);
+
+    try {
+      if (paymentMode === "cash") {
         await axios.post("/orders/complete-order", {
           items: orderItems,
           userId: user._id,
           addressId: selectedAddr._id,
-          totalAmount: totalAmount,
-          paymentMode: paymentMode,
+          totalAmount,
+          paymentMode,
           paymentStatus: "Completed",
         });
         await dispatch(clearCart());
-        window.location.replace("order-success");
-      } catch (error) {
-        console.log(error);
-        window.location.replace("order-failed");
+        history.replace("/order-success");
+        return;
       }
-    } else if (paymentMode == "online") {
-      try {
-        const res = await axios.post("/orders/complete-order", {
-          items: orderItems,
-          userId: user._id,
-          addressId: selectedAddr._id,
-          totalAmount: totalAmount,
-          paymentMode: paymentMode,
-          paymentStatus: "Initiated",
-        });
 
-        const { data } = await axios.post("/payment/paytm", {
-          fName: user.fname,
-          lName: user.lname,
-          phone: user.phone,
-          email: user.email,
-          totalAmount: totalAmount,
-          orderId: res.data.orderId,
-          custId: user._id,
-        });
-        const details = {
-          action: "https://securegw-stage.paytm.in/order/process",
-          params: data,
-        };
-        await dispatch(clearCart());
-        post(details);
-      } catch (error) {
-        console.log(error);
-        window.location.replace("order-failed");
-      }
+      const res = await axios.post("/orders/complete-order", {
+        items: orderItems,
+        userId: user._id,
+        addressId: selectedAddr._id,
+        totalAmount,
+        paymentMode: "online",
+        paymentStatus: "Initiated",
+      });
+
+      const { data } = await axios.post("/payment/paytm", {
+        fName: user.fname,
+        lName: user.lname,
+        phone: user.phone || user.number,
+        email: user.email,
+        totalAmount,
+        orderId: res.data.orderId,
+        custId: user._id,
+      });
+
+      await dispatch(clearCart());
+      post({
+        action: "https://securegw-stage.paytm.in/order/process",
+        params: data,
+      });
+    } catch (error) {
+      history.replace("/order-failed");
+    } finally {
+      setPlacing(false);
     }
   };
 
-  return isLoading ? (
-    <LoaderSpinner />
-  ) : (
+  if (!isAuthenticate || !cartItems.length) {
+    return null;
+  }
+
+  const contactLine = user.email || user.phone || "Account verified";
+
+  return (
     <>
-      {cartItems.length ? (
-        <Grid container className={classes.component}>
-          <Grid
-            item
-            lg={8}
-            md={8}
-            sm={12}
-            xs={12}
-            className={classes.leftComponent}
-          >
-            <Box boxShadow={1} className={classes.loginComponent}>
-              <Box>
-                <span className={classes.stepCount}>1</span>
-                <span className={classes.grayText}>
-                  LOGIN{" "}
-                  <svg
-                    height="16"
-                    width="20"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"
-                      stroke="#2974f0"
-                    ></path>
-                  </svg>
-                </span>
-                <Typography className={classes.loginText}>
-                  {`${user.fname}  ${user.lname}`}
-                  <span style={{ fontWeight: 500, marginLeft: 10 }}>
-                    {`${user.phone} `}
-                  </span>
-                </Typography>
-              </Box>
-              <button className={classes.changeBtn}>Change</button>
-            </Box>
-            <Box className={classes.addressComponent}>
-              {activeComponent.address ? (
-                <>
-                  <Box className={classes.activeComponent}>
-                    <span
-                      className={classes.stepCount}
-                      style={{ backgroundColor: "#fff" }}
-                    >
-                      2
-                    </span>
-                    DELIVERY ADDRESS
-                  </Box>
-                  <Box
-                    style={{
-                      padding: "0px 10px",
-                      maxHeight: "460px",
-                      overflowY: "auto",
-                    }}
-                  >
-                    <RadioGroup aria-label="type" name="address">
-                      {addresses.length > 0 &&
-                        addresses.map((address, index) => (
-                          <Box style={{ display: "flex" }}>
-                            <FormControlLabel
-                              key={index}
-                              value={address._id}
-                              control={<Radio style={{ color: "#2874f0" }} />}
-                            />
-                            <div>
-                              <AddressCard
-                                address={address}
-                                isCheckout={true}
-                              />
-                              <Button
-                                variant="contained"
-                                className={classes.actionBtn}
-                                onClick={() => deliverHere(address)}
-                                style={{ backgroundColor: "#fb641b" }}
-                              >
-                                Deliver Here
-                              </Button>
-                            </div>
-                          </Box>
-                        ))}
-                    </RadioGroup>
-                  </Box>
-                </>
-              ) : (
-                <Box style={{ display: "flex", alignItems: "start" }}>
-                  <Box
-                    style={{ padding: "20px 15px 5px 15px" }}
-                    className={classes.grayText}
-                  >
-                    <span className={classes.stepCount}>2</span>
-                    DELIVERY ADDRESS{" "}
-                    <svg
-                      height="16"
-                      width="20"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"
-                        stroke="#2974f0"
-                      ></path>
-                    </svg>
-                    <Typography className={classes.addressText}>
-                      <b>
-                        {selectedAddr?.name}
-                        {"   "}
-                      </b>{" "}
-                      {" - "}
-                      {selectedAddr?.houseAddress}, {selectedAddr?.locality},{" "}
-                      {selectedAddr?.city}, {selectedAddr?.state},{" "}
-                      {selectedAddr?.pincode}
-                    </Typography>
-                  </Box>
-                  <button
-                    style={{ marginTop: 15, marginRight: 15 }}
-                    onClick={handleChange}
-                    className={classes.changeBtn}
-                  >
+      <main className="checkout-page">
+        <div className="checkout-page__inner">
+          <div className="checkout-main">
+            {/* Step 1 — Login */}
+            <section className="checkout-step">
+              <div className="checkout-step__head checkout-step__head--done">
+                <div className="checkout-step__title-wrap">
+                  <span className="checkout-step__num">1</span>
+                  <h2 className="checkout-step__title">
+                    Account
+                    <span className="checkout-step__check" aria-hidden="true">✓</span>
+                  </h2>
+                </div>
+              </div>
+              <div className="checkout-step__body">
+                <p className="checkout-step__summary">
+                  Signed in as <strong>{user.fname} {user.lname}</strong>
+                  {" · "}{contactLine}
+                </p>
+              </div>
+            </section>
+
+            {/* Step 2 — Address */}
+            <section className={`checkout-step ${step === "payment" ? "" : ""}`}>
+              <div
+                className={`checkout-step__head ${
+                  step === "address"
+                    ? ""
+                    : step === "payment"
+                      ? "checkout-step__head--done"
+                      : "checkout-step__head--muted"
+                }`}
+              >
+                <div className="checkout-step__title-wrap">
+                  <span className="checkout-step__num">2</span>
+                  <h2 className="checkout-step__title">
+                    Delivery Address
+                    {step === "payment" && (
+                      <span className="checkout-step__check" aria-hidden="true">✓</span>
+                    )}
+                  </h2>
+                </div>
+                {step === "payment" && (
+                  <button type="button" className="checkout-step__change" onClick={() => setStep("address")}>
                     Change
                   </button>
-                </Box>
-              )}
-            </Box>
-            {activeComponent.address && (
-              <Box
-                className={clsx(classes.addressComponent, classes.addBtn)}
-                onClick={() =>
-                  history.replace("/account/addresses?ref=checkout?init=true")
-                }
-              >
-                <AddIcon style={{ marginRight: 10 }} />
-                <Typography style={{ fontSize: 16 }}>
-                  Add a new address
-                </Typography>
-              </Box>
-            )}
-            <Box className={clsx(classes.addressComponent)}>
-              {activeComponent.payment ? (
-                <>
-                  <Box className={classes.activeComponent}>
-                    <span
-                      className={classes.stepCount}
-                      style={{ backgroundColor: "#fff" }}
-                    >
-                      3
-                    </span>
-                    PAYMENT OPTIONS
-                  </Box>
-                  <Box style={{ padding: "0px 20px" }}>
-                    <RadioGroup
-                      name="payment"
-                      value={paymentMode}
-                      onChange={changePaymentMode}
-                    >
-                      <Box style={{ display: "flex" }}>
-                        <FormControlLabel
-                          value="online"
-                          control={<Radio style={{ color: "#2874f0" }} />}
+                )}
+              </div>
+
+              {step === "address" ? (
+                <div className="checkout-step__body">
+                  {addresses.length > 0 ? (
+                    <div className="checkout-address-list">
+                      {addresses.map((address) => (
+                        <AddressCard
+                          key={address._id}
+                          address={address}
+                          isCheckout
+                          selectable
+                          selected={selectedAddr?._id === address._id}
+                          onSelect={() => setSelectedAddr(address)}
                         />
-                        <div>
-                          <img
-                            height="60"
-                            src="https://cdn.iconscout.com/icon/free/png-256/paytm-226448.png"
-                            alt=""
-                          />
-                        </div>
-                      </Box>
-                      <FormControlLabel
-                        value="cash"
-                        control={<Radio style={{ color: "#2874f0" }} />}
-                        label="Cash on Delivery"
-                      />
-                    </RadioGroup>
-                    {paymentMode && (
-                      <Button
-                        variant="contained"
-                        className={classes.actionBtn}
-                        style={{
-                          backgroundColor: "#fb641b",
-                          marginLeft: "auto",
-                        }}
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="checkout-step__summary">
+                      No saved addresses yet. Add one to continue.
+                    </p>
+                  )}
+
+                  <div className="checkout-address-list__actions">
+                    <Link
+                      to="/account/addresses?ref=checkout&init=true"
+                      className="checkout-add-link"
+                    >
+                      <AddIcon style={{ fontSize: 18 }} />
+                      Add new address
+                    </Link>
+                    {selectedAddr && (
+                      <button type="button" className="bag-btn bag-btn--primary" onClick={continueToPayment}>
+                        Deliver to this address
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                selectedAddr && (
+                  <div className="checkout-step__body">
+                    <p className="checkout-step__summary">
+                      <strong>{selectedAddr.name}</strong>
+                      {" · "}{selectedAddr.number}
+                      <br />
+                      {selectedAddr.houseAddress}, {selectedAddr.locality}, {selectedAddr.city},{" "}
+                      {selectedAddr.state} — {selectedAddr.pincode}
+                    </p>
+                  </div>
+                )
+              )}
+            </section>
+
+            {/* Step 3 — Payment */}
+            <section className={`checkout-step ${step !== "payment" ? "checkout-step--disabled" : ""}`}>
+              <div
+                className={`checkout-step__head ${
+                  step === "payment" ? "" : "checkout-step__head--muted"
+                }`}
+              >
+                <div className="checkout-step__title-wrap">
+                  <span className="checkout-step__num">3</span>
+                  <h2 className="checkout-step__title">Payment</h2>
+                </div>
+              </div>
+
+              {step === "payment" && (
+                <div className="checkout-step__body">
+                  <div className="payment-options">
+                    <button
+                      type="button"
+                      className={`payment-option ${paymentMode === "online" ? "payment-option--selected" : ""}`}
+                      onClick={() => setPaymentMode("online")}
+                    >
+                      <span className="payment-option__radio" aria-hidden="true" />
+                      <span className="payment-option__icon">💳</span>
+                      <span className="payment-option__info">
+                        <p className="payment-option__name">UPI / Card / Net Banking</p>
+                        <p className="payment-option__desc">Pay securely via Paytm</p>
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`payment-option ${paymentMode === "cash" ? "payment-option--selected" : ""}`}
+                      onClick={() => setPaymentMode("cash")}
+                    >
+                      <span className="payment-option__radio" aria-hidden="true" />
+                      <span className="payment-option__icon">💵</span>
+                      <span className="payment-option__info">
+                        <p className="payment-option__name">Cash on Delivery</p>
+                        <p className="payment-option__desc">Pay when your order arrives</p>
+                      </span>
+                    </button>
+                  </div>
+
+                  {paymentMode && (
+                    <div style={{ marginTop: 20 }}>
+                      <button
+                        type="button"
+                        className="bag-btn bag-btn--primary"
+                        disabled={placing}
                         onClick={confirmOrder}
                       >
-                        {paymentMode === "cash" ? " CONFIRM ORDER" : "CONTINUE"}
-                      </Button>
-                    )}
-                  </Box>
-                </>
-              ) : (
-                <Box
-                  style={{ padding: "20px 15px 5px 15px" }}
-                  className={classes.grayText}
-                >
-                  <span className={classes.stepCount}>3</span>
-                  PAYMENT OPTIONS
-                </Box>
+                        {placing
+                          ? "Processing..."
+                          : paymentMode === "cash"
+                            ? "Confirm Order"
+                            : "Pay & Place Order"}
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
-            </Box>
-          </Grid>
-          <Grid item lg={4} md={4} sm={12} xs={12}>
+            </section>
+          </div>
+
+          <aside className="checkout-sidebar">
             <TotalView page="checkout" />
-            <Box style={{ marginTop: 20 }}>
-              <img style={{ width: "100%" }} src={superCoin} alt="Super Coin" />
-            </Box>
-            <Box
-              style={{ marginTop: 20, display: "flex", padding: "10px 20px" }}
-            >
-              <img
-                className={classes.shieldIcon}
-                src={shieldIcon}
-                alt="Secure"
-              />
-              <span className={classes.para}>
-                Safe and Secure Payments. Easy returns. 100% Authentic products.
-              </span>
-            </Box>
-          </Grid>
-        </Grid>
-      ) : (
-        ""
-      )}
+            <div className="checkout-trust">
+              <span className="checkout-trust__icon" aria-hidden="true">🔒</span>
+              <p className="checkout-trust__text">
+                Safe and secure payments. Easy returns within 30 days. 100% authentic products.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </main>
+      <Footer />
       <ToastMessageContainer />
     </>
   );
-};
+}
 
 export default CheckoutPage;

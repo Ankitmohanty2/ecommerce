@@ -25,7 +25,7 @@ const useStyles = makeStyles(() => ({
     textAlign: "center",
     "&:hover": {
       cursor: "pointer",
-      color: "#2874f0",
+      color: "#6c3ce9",
     },
   },
 }));
@@ -83,7 +83,7 @@ function AlertDialogBox({ itemId, isOpenDialog = false, handleClose, type }) {
           </button>
           <Button
             onClick={removeItem}
-            style={{ background: "#2874f0" }}
+            style={{ background: "#6c3ce9" }}
             variant="contained"
             color="Primary"
           >

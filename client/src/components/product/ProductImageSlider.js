@@ -63,7 +63,7 @@ const useStyle = makeStyles((theme) => ({
     color: "#FFF",
   },
   buyNow: {
-    background: "#fb641b",
+    background: "#f97316",
     color: "#FFF",
   },
   red: {
@@ -142,7 +142,7 @@ const ProductImageSlider = ({ product }) => {
         onClick={() => addItemToCart()}
         className={clsx(classes.button, classes.buyNow)}
         variant="contained"
-        style={{ backgroundColor: "#fb641b" }}
+        style={{ backgroundColor: "#f97316" }}
       >
         <Flash /> Buy Now
       </Button>

@@ -1,120 +1,79 @@
-import React, { useEffect, useState } from "react";
-import { Box, makeStyles, Typography, Button, Grid } from "@material-ui/core";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 
-import {  getCartItems } from "../actions/cartActions";
-
+import { getCartItems } from "../actions/cartActions";
 import CartItem from "../components/cart/CartItem";
 import TotalView from "../components/cart/TotalView";
 import EmptyCart from "../components/cart/EmptyCart";
-import LoaderSpinner from "../components/LoaderSpinner";
 import Footer from "../components/footer/Footer";
 import ToastMessageContainer from "../components/ToastMessageContainer";
 
-const useStyle = makeStyles((theme) => ({
-  component: {
-    marginTop: 55,
-    padding: "30px 6%",
-    display: "flex",
-  },
-  leftComponent: {
-    paddingRight: 15,
-    [theme.breakpoints.between(0,960)]: {
-      paddingRight:0,
-      marginBottom:20,
-    },
-  },
-  header: {
-    padding: "15px 24px",
-    background: "#fff",
-  },
-  bottom: {
-    padding: "16px 22px",
-    background: "#fff",
-    boxShadow: "0 -2px 10px 0 rgb(0 0 0 / 10%)",
-    borderTop: "1px solid #f0f0f0",
-  },
-  placeOrder: {
-    display: "flex",
-    marginLeft: "auto",
-    background: "#fb641b",
-    color: "#fff",
-    borderRadius: 2,
-    width: 250,
-    height: 51,
-  },
-}));
+import "../styles/CartPage.css";
 
-const Cart = () => {
-  const classes = useStyle();
-
+function CartPage() {
   const { cartItems } = useSelector((state) => state.cartReducer);
   const { isAuthenticate } = useSelector((state) => state.userReducer);
-
-  const [isLoading, setIsLoading] = useState(true);
-
   const dispatch = useDispatch();
 
   useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
     if (isAuthenticate) {
       dispatch(getCartItems());
     }
-  }, [isAuthenticate]);
+  }, [isAuthenticate, dispatch]);
 
+  const itemCount = cartItems.reduce((sum, item) => sum + (item.qty || 1), 0);
 
-  const placeOrder = () => {
-    window.location.replace("/checkout?init=true");
-  };
+  if (!cartItems.length) {
+    return (
+      <>
+        <main className="cart-page">
+          <div className="cart-page__inner cart-page__inner--empty">
+            <EmptyCart />
+          </div>
+        </main>
+        <Footer />
+        <ToastMessageContainer />
+      </>
+    );
+  }
 
-  return isLoading ? (
-    <LoaderSpinner />
-  ) : (
+  return (
     <>
-      {cartItems.length ? (
-        <Grid container className={classes.component}>
-          <Grid
-            item
-            lg={9}
-            md={9}
-            sm={12}
-            xs={12}
-            className={classes.leftComponent}
-          >
-            <Box className={classes.header}>
-              <Typography style={{ fontWeight: 600, fontSize: 18 }}>
-                My Cart ({cartItems?.length})
-              </Typography>
-            </Box>
+      <main className="cart-page">
+        <div className="cart-page__inner">
+          <section className="cart-page__main">
+            <header className="cart-page__header">
+              <h1 className="cart-page__title">My Bag ({itemCount})</h1>
+              <p className="cart-page__subtitle">
+                Review items before checkout. Free delivery on orders over ₹999.
+              </p>
+            </header>
+
             {cartItems.map((item) => (
-              <CartItem item={item}  />
+              <CartItem key={item._id} item={item} />
             ))}
-            <Box className={classes.bottom}>
-              <Button
-                onClick={placeOrder}
-                variant="contained"
-                className={classes.placeOrder}
-                style={{ backgroundColor: "#fb641b" }}
-              >
+
+            <div className="cart-page__footer-bar">
+              <div className="cart-page__footer-total">
+                Order total
+                <TotalView page="cart-footer" />
+              </div>
+              <Link to="/checkout?init=true" className="bag-btn bag-btn--primary">
                 Place Order
-              </Button>
-            </Box>
-          </Grid>
-          <Grid item lg={3} md={3} sm={12} xs={12}>
-            <TotalView />
-          </Grid>
-        </Grid>
-      ) : (
-        <>
-        <EmptyCart />
-        <Footer/>
-        </>
-      )}
+              </Link>
+            </div>
+          </section>
+
+          <aside className="cart-page__sidebar">
+            <TotalView page="cart" />
+          </aside>
+        </div>
+      </main>
+      <Footer />
       <ToastMessageContainer />
     </>
   );
-};
+}
 
-export default Cart;
+export default CartPage;

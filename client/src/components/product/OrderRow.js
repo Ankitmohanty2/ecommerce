@@ -44,7 +44,7 @@ const useStyle = makeStyles((theme) => ({
     fontSize: 14,
     "&:hover": {
       cursor: "pointer",
-      color: "#2874f0",
+      color: "#6c3ce9",
     },
   },
   paymentDetails:{

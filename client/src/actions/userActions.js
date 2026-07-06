@@ -7,6 +7,11 @@ export const setIsLogin = (isLogin) => ({
   },
 });
 
+export const setAuthEmail = (authEmail) => ({
+  type: actionType.SET_AUTH_EMAIL,
+  payload: { authEmail },
+});
+
 export const setMobileNumber = (phoneNumber) => ({
   type: actionType.SET_MOBILE_NUMBER,
   payload: {

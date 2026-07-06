@@ -118,7 +118,7 @@ function ProductRow({ isFirstRow = false, categoryName, title }) {
         <Box className={classes.leftContainer}>
           <h2 className={classes.row_title}>{title}</h2>
           <Button
-            style={{ backgroundColor: "#2874f0", marginTop: 20 }}
+            style={{ backgroundColor: "#6c3ce9", marginTop: 20 }}
             variant="contained"
             color="primary"
           >
@@ -127,7 +127,7 @@ function ProductRow({ isFirstRow = false, categoryName, title }) {
         </Box>
         <Box className={classes.products_wrapper} textAlign="center">
           {isLoading ? (
-            <CircularProgress style={{ color: "#2874f0" }} />
+            <CircularProgress style={{ color: "#6c3ce9" }} />
           ) : (
             <Carousel
               swipeable={true}

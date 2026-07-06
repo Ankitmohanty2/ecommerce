@@ -1,58 +1,52 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { ButtonGroup, Button, makeStyles } from "@material-ui/core";
 
 import { updateQty } from "../../actions/cartActions";
 import toastMessage from "../../utils/toastMessage";
 
-
-const useStyle = makeStyles({
-  component: {
-    marginTop: 30,
-  },
-  button: {
-    borderRadius: "50%",
-  },
-});
-
-const GroupedButton = ({ product }) => {
-  const classes = useStyle();
-  const [counter, setCounter] = useState(product.qty);
-
+function GroupButton({ product }) {
+  const [counter, setCounter] = useState(product.qty || 1);
   const dispatch = useDispatch();
 
   const handleIncrement = () => {
     if (counter + 1 <= 5) {
-      setCounter((counter) => counter + 1);
+      setCounter((prev) => prev + 1);
       dispatch(updateQty(product._id, counter + 1));
-      toastMessage(`You've changed ${product.title.longTitle} QUANTITY to ${counter + 1}`,"success");
+      toastMessage(`Quantity updated to ${counter + 1}`, "success");
     } else {
-      toastMessage("We're sorry! Only 5 unit(s) allowed in each order", "error");
+      toastMessage("Maximum 5 units allowed per product", "error");
     }
   };
+
   const handleDecrement = () => {
-    setCounter((counter) => counter - 1);
+    if (counter <= 1) return;
+    setCounter((prev) => prev - 1);
     dispatch(updateQty(product._id, counter - 1));
-    toastMessage(`You've changed ${product.title.longTitle} QUANTITY to ${counter -1}`,"success");
+    toastMessage(`Quantity updated to ${counter - 1}`, "success");
   };
 
   return (
-    <>
-      <ButtonGroup className={classes.component}>
-        <Button
-          className={classes.button}
-          onClick={() => handleDecrement()}
-          disabled={counter == 1}
-        >
-          -
-        </Button>
-        <Button disabled>{counter}</Button>
-        <Button className={classes.button} onClick={() => handleIncrement()}>
-          +
-        </Button>
-      </ButtonGroup>
-    </>
+    <div className="qty-stepper" aria-label="Quantity">
+      <button
+        type="button"
+        className="qty-stepper__btn"
+        onClick={handleDecrement}
+        disabled={counter <= 1}
+        aria-label="Decrease quantity"
+      >
+        −
+      </button>
+      <span className="qty-stepper__value">{counter}</span>
+      <button
+        type="button"
+        className="qty-stepper__btn"
+        onClick={handleIncrement}
+        aria-label="Increase quantity"
+      >
+        +
+      </button>
+    </div>
   );
-};
+}
 
-export default GroupedButton;
+export default GroupButton;

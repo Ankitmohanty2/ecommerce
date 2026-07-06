@@ -1,49 +1,36 @@
 import React, { useEffect } from "react";
-import { Button } from "@material-ui/core";
 import { Link, useHistory } from "react-router-dom";
-import successImg from '../assets/success.png'
+import Footer from "../components/footer/Footer";
+import "../styles/CartPage.css";
 
 function OrderSuccessPage() {
-  useEffect(() => {
-      setTimeout(() => {
-        history.replace("/orders");
-      }, 30000);
-  }, []);
   const history = useHistory();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      history.replace("/orders");
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [history]);
+
   return (
-      <div
-        style={{
-          textAlign: "center",
-          fontSize: "14px",
-          padding: "20px",
-          marginTop: "70px",
-        }}
-      >
-        <div>
-          <img
-            style={{ width: "400px", maxWidth: "100%" }}
-            src={successImg}
-            alt="Order Success"
-          />
-          <div
-            style={{
-              fontSize: "2em",
-              marginTop: "-30px",
-              marginBottom: "30px",
-              fontWeight: 500,
-            }}
-          >
-            Order Completed !
+    <>
+      <main className="cart-page">
+        <div className="cart-page__inner cart-page__inner--empty">
+          <div className="bag-empty">
+            <div className="bag-empty__icon" aria-hidden="true">✓</div>
+            <h1 className="bag-empty__title">Order placed successfully</h1>
+            <p className="bag-empty__text">
+              Thank you for shopping with Vixen Fashion. You can track your order in My Orders.
+            </p>
+            <Link to="/orders" className="bag-btn bag-btn--primary">
+              View My Orders
+            </Link>
           </div>
-          <Button
-            style={{ backgroundColor: "#2874f0" }}
-            variant="contained"
-            color="primary"
-          >
-            <Link to="/orders">My Orders</Link>
-          </Button>
         </div>
-      </div>
+      </main>
+      <Footer />
+    </>
   );
 }
 

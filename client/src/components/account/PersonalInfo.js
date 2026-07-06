@@ -17,7 +17,7 @@ import { updateEmail, updateUserInfo } from "../../actions/userActions";
 import toastMessage from "../../utils/toastMessage";
 
 import { makeCapitalizeText } from "../../utils/makeCapitalizeText";
-import profileFooterImg from "../../assets/myProfileFooter.png";
+import "../../styles/AccountPage.css";
 
 const useStyles = makeStyles((theme) => ({
   component: {
@@ -53,8 +53,8 @@ const useStyles = makeStyles((theme) => ({
   editLink: {
     display: "inline-block",
     fontSize: "14px",
-    fontWeight: 500,
-    color: "#2874f0",
+    fontWeight: 600,
+    color: "var(--accent)",
     cursor: "pointer",
   },
 }));
@@ -241,8 +241,15 @@ function PersonalInfo() {
   };
 
   return (
-    <>
-      <Box className={classes.component}>
+    <div className="account-panel">
+      <header className="account-panel__header">
+        <h1 className="account-panel__title">Profile Information</h1>
+        <p className="account-panel__subtitle">
+          Manage your personal details and contact information
+        </p>
+      </header>
+
+      <Box className={classes.component} style={{ padding: 0 }}>
         <Typography className={classes.title}>Personal Information</Typography>
         <span
           className={classes.editLink}
@@ -279,7 +286,7 @@ function PersonalInfo() {
             <Button
               variant="contained"
               className={classes.saveBtn}
-              style={{ background: "#2874f0" }}
+              style={{ background: "#142536" }}
               onClick={savePersonalInfo}
             >
               SAVE
@@ -297,13 +304,13 @@ function PersonalInfo() {
           >
             <FormControlLabel
               value="M"
-              control={<Radio style={{ color: "#2874f0" }} />}
+              control={<Radio style={{ color: "var(--accent)" }} />}
               label="Male"
               disabled={!isEditPInfo}
             />
             <FormControlLabel
               value="F"
-              control={<Radio style={{ color: "#2874f0" }} />}
+              control={<Radio style={{ color: "var(--accent)" }} />}
               label="Female"
               disabled={!isEditPInfo}
             />
@@ -337,7 +344,7 @@ function PersonalInfo() {
             <Button
               variant="contained"
               className={classes.saveBtn}
-              style={{ background: "#2874f0" }}
+              style={{ background: "#142536" }}
               onClick={saveEmail}
             >
               SAVE
@@ -369,66 +376,17 @@ function PersonalInfo() {
             <Button
               variant="contained"
               className={classes.saveBtn}
-              style={{ background: "#2874f0" }}
+              style={{ background: "#142536" }}
             >
               SAVE
             </Button>
           )} */}
         </Box>
-        <Box>
-          <div style={{ margin: "50px 0" }}>
-            <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 20 }}>
-              FAQs
-            </div>
-            <div>
-              <h4>
-                What happens when I update my email address (or mobile number)?
-              </h4>
-              <p>
-                Your login email id (or mobile number) changes, likewise. You'll
-                receive all your account related communication on your updated
-                email address (or mobile number).
-              </p>
-              <br />
-              <h4>
-                When will my Flipkart account be updated with the new email
-                address (or mobile number)?
-              </h4>
-              <p>
-                It happens as soon as you confirm the verification code sent to
-                your email (or mobile) and save the changes.
-              </p>
-              <br />
-              <h4>
-                What happens to my existing Flipkart account when I update my
-                email address (or mobile number)?
-              </h4>
-              <p>
-                Updating your email address (or mobile number) doesn't
-                invalidate your account. Your account remains fully functional.
-                You'll continue seeing your Order history, saved information and
-                personal details.
-              </p>
-              <br />
-              <h4>
-                Does my Seller account get affected when I update my email
-                address?
-              </h4>
-              <p>
-                Flipkart has a 'single sign-on' policy. Any changes will reflect
-                in your Seller account also.
-              </p>
-            </div>
-          </div>
-        </Box>
+      <p className="auth-form__legal" style={{ marginTop: 24, fontSize: "0.82rem", color: "#8a96a3" }}>
+        When you update your email, your login credentials change. Your order history and saved details stay intact.
+      </p>
       </Box>
-      <img
-        width="100%"
-        height="auto"
-        style={{ verticalAlign: "middle" }}
-        src={profileFooterImg}
-      />
-    </>
+    </div>
   );
 }
 

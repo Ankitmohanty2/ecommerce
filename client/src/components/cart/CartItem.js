@@ -1,117 +1,68 @@
-import { Card, makeStyles, Box, Typography, Button } from "@material-ui/core";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import clsx from "clsx";
 
 import { makeShortText } from "../../utils/makeShortText";
-import { fassured } from "../../constants/data";
-
 import GroupButton from "./GroupButton";
 import AlertDialogBox from "../AlertDialgBox";
-import { useState } from "react";
 
-const useStyle = makeStyles({
-  component: {
-    borderTop: "1px solid #f0f0f0",
-    borderRadius: 0,
-    display: "flex",
-    "&:hover": {
-      cursor: "pointer",
-      "& $itemTitle": {
-        color: "#2874f0",
-      },
-    },
-  },
-  leftComponent: {
-    margin: 20,
-    display: "flex",
-    flexDirection: "column",
-  },
-  itemTitle: {
-    color: "#000",
-  },
-  image: {
-    height: 110,
-    width: 110,
-    objectFit: "contain",
-  },
-  mid: {
-    margin: 20,
-  },
-  greyTextColor: {
-    color: "#878787",
-  },
-  smallText: {
-    fontSize: 14,
-  },
-  price: {
-    fontSize: 18,
-    fontWeight: 600,
-  },
-  remove: {
-    marginTop: 12,
-    fontSize: 16,
-  },
-});
+const formatPrice = (value) =>
+  Number(value || 0).toLocaleString("en-IN");
 
-const CartItem = ({ item }) => {
-  const classes = useStyle();
+const getDiscount = (item) => {
+  if (item.price.mrp <= item.price.cost) return 0;
+  return Math.round(((item.price.mrp - item.price.cost) / item.price.mrp) * 100);
+};
+
+function CartItem({ item }) {
   const [isOpenDialog, setIsOpenDialog] = useState(false);
 
-  const dialogClose = () => {
-    setIsOpenDialog(false);
-  };
-
-  const dialogOpen = () => {
-    setIsOpenDialog(true);
-  };
+  const discount = getDiscount(item);
 
   return (
     <>
-      <Card className={classes.component}>
-        <Box className={classes.leftComponent}>
-          <img src={item.url} className={classes.image} />
-          <GroupButton product={item} />
-        </Box>
-        <Box className={classes.mid}>
-          <Link to={`/product/${item._id}`}>
-            <Typography className={classes.itemTitle}>
-              {item.title.longTitle && makeShortText(item.title.longTitle)}
-            </Typography>
-
-            <Typography
-              className={clsx(classes.greyTextColor, classes.smallText)}
-              style={{ marginTop: 10 }}
-            >
-              Seller:RetailNet
-              <span>
-                <img src={fassured} style={{ height: 18, marginLeft: 10 }} />
-              </span>
-            </Typography>
-            <Typography style={{ margin: "20px 0", color: "#000" }}>
-              <span className={classes.price}>₹{item.price.cost}</span>
-              &nbsp;&nbsp;&nbsp;
-              <span className={classes.greyTextColor}>
-                <strike>₹{item.price.mrp}</strike>
-              </span>
-              &nbsp;&nbsp;&nbsp;
-              <span style={{ color: "#388E3C" }}>
-                {item.price.discount} off
-              </span>
-            </Typography>
+      <article className="cart-item">
+        <div className="cart-item__media">
+          <Link to={`/product/${item._id}`} className="cart-item__image-wrap">
+            <img src={item.url} alt={item.title?.shortTitle || "Product"} className="cart-item__image" />
           </Link>
-          <Button className={classes.remove} onClick={dialogOpen}>
-            Remove
-          </Button>
-        </Box>
-      </Card>
+          <GroupButton product={item} />
+        </div>
+
+        <div className="cart-item__body">
+          <Link to={`/product/${item._id}`} className="cart-item__link">
+            {item.brand && <p className="cart-item__brand">{item.brand}</p>}
+            <h2 className="cart-item__name">
+              {item.title?.longTitle ? makeShortText(item.title.longTitle) : item.title?.shortTitle}
+            </h2>
+            <p className="cart-item__meta">Sold by Vixen Fashion</p>
+
+            <div className="cart-item__prices">
+              <span className="cart-item__price">₹{formatPrice(item.price.cost)}</span>
+              {item.price.mrp > item.price.cost && (
+                <>
+                  <span className="cart-item__mrp">₹{formatPrice(item.price.mrp)}</span>
+                  <span className="cart-item__discount">{discount}% off</span>
+                </>
+              )}
+            </div>
+          </Link>
+
+          <div className="cart-item__actions">
+            <button type="button" className="cart-item__remove" onClick={() => setIsOpenDialog(true)}>
+              Remove
+            </button>
+          </div>
+        </div>
+      </article>
+
       <AlertDialogBox
         isOpenDialog={isOpenDialog}
-        handleClose={dialogClose}
+        handleClose={() => setIsOpenDialog(false)}
         itemId={item._id}
         type="cart"
       />
     </>
   );
-};
+}
 
 export default CartItem;

@@ -1,134 +1,214 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, makeStyles, Grid } from "@material-ui/core";
-import StarIcon from "@material-ui/icons/Star";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router";
+import { useParams, useHistory } from "react-router";
 
 import { getProductById } from "../actions/productActions";
-import { fassured } from "../constants/data";
-
-import ProductDetail from "../components/product/ProductDetail";
-import ProductImageSlider from "../components/product/ProductImageSlider";
-import LoaderSpinner from "../components/LoaderSpinner";
+import { addToCart } from "../actions/cartActions";
+import { fetchSimilarProducts } from "../adapters/catalog";
+import ProductCard from "../components/home/ProductCard";
+import ProductPageSkeleton from "../components/skeleton/ProductPageSkeleton";
+import ProductCardSkeleton from "../components/skeleton/ProductCardSkeleton";
 import ToastMessageContainer from "../components/ToastMessageContainer";
 
-const useStyles = makeStyles((theme) => ({
-  component: {
-    marginTop: 55,
-    background: "#F2F2F2",
-    padding: "10px 3%",
-  },
-  container: {
-    background: "#FFFFFF",
-    display: "flex",
-    [theme.breakpoints.down("md")]: {
-      margin: 0,
-      padding:"0 7px",
-    },
-  },
-  rightContainer: {
-    marginTop: 15,
-    "& > *": {
-      marginTop: 10,
-    },
-  },
-  price: {
-    fontSize: 28,
-  },
-  smallText: {
-    fontSize: 14,
-  },
-  greyTextColor: {
-    color: "#878787",
-    fontSize: 16,
-    marginLeft: 5,
-  },
-  rate: {
-    display: "flex",
-    alignItems: "center",
-    color: "#fff",
-    padding: "2px 5px",
-    borderRadius: 5,
-    fontWeight: 600,
-    fontSize: 12,
-    backgroundColor: "#388e3c",
-  },
-}));
+import "../styles/ProductPage.css";
 
 function ProductPage() {
-  const classes = useStyles();
   const [isLoading, setIsLoading] = useState(true);
-
+  const [similarLoading, setSimilarLoading] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
+  const [similarProducts, setSimilarProducts] = useState([]);
   const { product } = useSelector((state) => state.productReducer);
   const { id } = useParams();
   const dispatch = useDispatch();
-  var rate = (Math.random() * 5).toFixed(1);
-  var reviewCount = Math.round(Math.random() * 10000 + 1);
-  if (rate < 4) {
-    rate = 4.1;
+  const history = useHistory();
+
+  const onSale = product?.discountPercentage >= 15;
+  const gallery = (
+    product?.images?.length
+      ? product.images
+      : [product?.detailUrl || product?.url].filter(Boolean)
+  ).slice(0, 8);
+  const hasMultipleViews = gallery.length > 1;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    setActiveImage(0);
+    setSimilarProducts([]);
+    setSimilarLoading(false);
+    dispatch(getProductById(id));
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    if (String(product?._id) === String(id)) {
+      setIsLoading(false);
+      return;
+    }
+    if (product && Object.keys(product).length === 0) {
+      setIsLoading(false);
+    }
+  }, [product, id]);
+
+  useEffect(() => {
+    if (!product?.category || String(product?._id) !== String(id)) {
+      setSimilarProducts([]);
+      setSimilarLoading(false);
+      return;
+    }
+
+    setSimilarLoading(true);
+    fetchSimilarProducts(product.category, product._id, 4)
+      .then(setSimilarProducts)
+      .finally(() => setSimilarLoading(false));
+  }, [product, id]);
+
+  const addItemToCart = () => {
+    dispatch(addToCart(product));
+    history.push("/cart");
+  };
+
+  const mainImage = gallery[activeImage] || product?.detailUrl || product?.url;
+
+  if (isLoading) {
+    return <ProductPageSkeleton />;
   }
-  window.scrollTo(0, 0);
 
-  useEffect(() => {
-    if (product && id !== product.id) {
-      dispatch(getProductById(id));
-    }
-  }, [dispatch]);
+  if (!product || Object.keys(product).length === 0) {
+    return (
+      <div className="product-page">
+        <p className="product-page__empty">Product not found.</p>
+        <ToastMessageContainer />
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (Object.keys(product).length > 0) {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 400);
-    }
-  }, [product]);
+  return (
+    <div className="product-page">
+      <div className="product-page__wrapper">
+        <nav className="product-page__breadcrumb" aria-label="Breadcrumb">
+          <Link to="/">Home</Link>
+          <span aria-hidden="true">›</span>
+          <Link to={`/?cat=${product.category || "all"}`}>{product.brand}</Link>
+          <span aria-hidden="true">›</span>
+          <span>{product.title.shortTitle}</span>
+        </nav>
 
-  return isLoading ? (
-    <LoaderSpinner />
-  ) : (
-    <Box className={classes.component}>
-      {product && Object.keys(product).length && (
-        <Grid container className={classes.container}>
-          <Grid item lg={5} md={5} sm={9} xs={12}>
-            <ProductImageSlider product={product} />
-          </Grid>
-          <Grid
-            item
-            lg={7}
-            md={7}
-            sm={7}
-            xs={12}
-            className={classes.rightContainer}
-          >
-            <Typography>{product.title.longTitle}</Typography>
-            <Box style={{ display: "flex", alignItems: "center" }}>
-              <Typography className={classes.rate}>
-                {rate} <StarIcon style={{ fontSize: 12, marginLeft: 3 }} />
-              </Typography>
-              <Typography className={classes.greyTextColor}>
-                ({reviewCount})
-              </Typography>
-              <span>
-                <img src={fassured} style={{ height: 21, marginLeft: 10 }} />
+        <div className="product-page__container">
+          <div className="product-page__gallery">
+            <div className="product-page__image-wrap">
+              <img
+                className="product-page__main-image"
+                src={mainImage}
+                alt={product.title.longTitle}
+                loading="eager"
+                decoding="async"
+              />
+            </div>
+
+            {hasMultipleViews && (
+              <div className="product-page__thumbs">
+                {gallery.map((img, i) => (
+                  <button
+                    key={`${img}-${i}`}
+                    type="button"
+                    className={`product-page__thumb ${activeImage === i ? "product-page__thumb--active" : ""}`}
+                    onClick={() => setActiveImage(i)}
+                  >
+                    <img src={img} alt="" loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="product-page__info">
+            {product.brand && (
+              <p className="product-page__brand">{product.brand}</p>
+            )}
+            <h1 className="product-page__title">{product.title.longTitle}</h1>
+
+            {product.rating && (
+              <p className="product-page__rating">
+                ★ {product.rating.toFixed(1)} · {product.stock} in stock
+              </p>
+            )}
+
+            <div className="product-page__price-row">
+              <span
+                className={`product-page__price ${onSale ? "product-page__price--sale" : ""}`}
+              >
+                ₹ {product.price.cost.toLocaleString("en-IN")}
               </span>
-            </Box>
-            <Typography>
-              <span className={classes.price}>₹{product.price.cost}</span>
-              &nbsp;&nbsp;&nbsp;
-              <span className={classes.greyTextColor}>
-                <strike>₹{product.price.mrp}</strike>
-              </span>
-              &nbsp;&nbsp;&nbsp;
-              <span style={{ color: "#388E3C" }}>
-                {product.price.discount} off
-              </span>
-            </Typography>
-            <ProductDetail product={product} />
-          </Grid>
-        </Grid>
-      )}
+              {onSale && (
+                <>
+                  <span className="product-page__mrp">
+                    ₹ {product.price.mrp.toLocaleString("en-IN")}
+                  </span>
+                  <span className="product-page__discount">
+                    {Math.round(product.discountPercentage)}% OFF
+                  </span>
+                </>
+              )}
+            </div>
+
+            {product.colorSwatches?.length > 0 && (
+              <div className="product-page__swatches">
+                <span className="product-page__swatches-label">Colours</span>
+                <div className="product-page__swatches-row">
+                  {product.colorSwatches.map((color) => (
+                    <span
+                      key={color}
+                      className="product-page__swatch"
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {product.description && (
+              <p className="product-page__description">{product.description}</p>
+            )}
+
+            <div className="product-page__actions">
+              <button
+                type="button"
+                className="product-page__btn product-page__btn--primary"
+                onClick={addItemToCart}
+              >
+                Add to Bag
+              </button>
+            </div>
+
+            <div className="product-page__meta">
+              <p>Free delivery on orders over ₹999</p>
+              <p>Free returns within 30 days</p>
+            </div>
+          </div>
+        </div>
+
+        {(similarLoading || similarProducts.length > 0) && (
+          <section className="product-page__similar" aria-busy={similarLoading}>
+            <h2 className="product-page__similar-title">You may also like</h2>
+            <div className="product-page__similar-grid">
+              {similarLoading
+                ? Array.from({ length: 4 }, (_, i) => (
+                    <ProductCardSkeleton key={i} />
+                  ))
+                : similarProducts.map((item) => (
+                    <ProductCard key={item._id} product={item} />
+                  ))}
+            </div>
+          </section>
+        )}
+      </div>
+
       <ToastMessageContainer />
-    </Box>
+    </div>
   );
 }
 

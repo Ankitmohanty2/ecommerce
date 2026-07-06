@@ -53,7 +53,7 @@ const ProductDetail = ({ product }) => {
       <Box className={classes.smallText}>
         <Typography>
           <Badge className={classes.badge} />
-          Bank Offer 5% Unlimited Cashback on Flipkart Axis Bank Credit Card
+          Bank Offer 5% Unlimited Cashback on Axis Bank Credit Card
         </Typography>
         <Typography>
           <Badge className={classes.badge} />
@@ -89,7 +89,7 @@ const ProductDetail = ({ product }) => {
           <TableRow className={classes.smallText}>
             <TableCell className={classes.greyTextColor}>Seller</TableCell>
             <TableCell className={clsx(classes.smallText, classes.borderNone)}>
-              <span style={{ color: "#2874f0" }}>SuperComNet</span>
+              <span style={{ color: "#6c3ce9" }}>SuperComNet</span>
               <Typography>GST invoice available</Typography>
               <Typography>View more sellers starting from ₹329</Typography>
             </TableCell>

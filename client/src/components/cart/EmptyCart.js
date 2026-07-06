@@ -1,77 +1,38 @@
-import { makeStyles, Typography, Box, Button } from "@material-ui/core";
+import React from "react";
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import { emptyCartUrl } from "../../constants/data";
-
-const useStyle = makeStyles((theme) => ({
-  component: {
-    width: "80%",
-    minWidth: 500,
-    height: "65vh",
-    background: "#fff",
-    margin: "80px 140px",
-    [theme.breakpoints.down("md")]: {
-      margin: "80px 0px",
-    },
-  },
-  image: {
-    width: "20%",
-    minWidth: 150,
-  },
-  container: {
-    textAlign: "center",
-    paddingTop: 70,
-  },
-  btn: {
-    display: "block",
-    margin: "0 auto",
-    marginTop: 15,
-    padding: "5px 60px",
-  },
-}));
-
-const EmptyCart = () => {
-  const classes = useStyle();
+function EmptyCart() {
   const { isAuthenticate } = useSelector((state) => state.userReducer);
 
   return (
-    <Box className={classes.component}>
-      <Box className={classes.container}>
-        <img src={emptyCartUrl} className={classes.image} />
-        {isAuthenticate ? (
-          <>
-            <Typography>Your cart is empty!</Typography>
-            <span>Add items to it now.</span>
-            <Button
-              variant="contained"
-              className={classes.btn}
-              color="primary"
-              onClick={() => window.location.replace("/")}
-              style={{ background: "#2874f0", textTransform: "capitalize" }}
-            >
-              {" "}
-              Shop Now
-            </Button>
-          </>
-        ) : (
-          <>
-            <Typography>Missing Cart items?</Typography>
-            <span>Login to see the items you added previously</span>
-            <br />
-            <Button
-              variant="contained"
-              className={classes.btn}
-              color="primary"
-              onClick={() => window.location.replace("/login")}
-              style={{ background: "#fb641b", textTransform: "capitalize" }}
-            >
-              Login
-            </Button>
-          </>
-        )}
-      </Box>
-    </Box>
+    <div className="bag-empty">
+      <div className="bag-empty__icon" aria-hidden="true">
+        🛍
+      </div>
+      {isAuthenticate ? (
+        <>
+          <h2 className="bag-empty__title">Your bag is empty</h2>
+          <p className="bag-empty__text">
+            Looks like you haven&apos;t added anything yet. Explore our latest H&amp;M collection.
+          </p>
+          <Link to="/" className="bag-btn bag-btn--primary">
+            Continue Shopping
+          </Link>
+        </>
+      ) : (
+        <>
+          <h2 className="bag-empty__title">Missing bag items?</h2>
+          <p className="bag-empty__text">
+            Login to see items you added earlier and pick up where you left off.
+          </p>
+          <Link to="/login?ref=cart" className="bag-btn bag-btn--accent">
+            Login
+          </Link>
+        </>
+      )}
+    </div>
   );
-};
+}
 
 export default EmptyCart;

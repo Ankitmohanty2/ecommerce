@@ -1,68 +1,106 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router";
-import Backdrop from "@material-ui/core/Backdrop";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import { makeStyles } from "@material-ui/core/styles";
 
-import { setIsAuthenticate, setUserInfo } from "../actions/userActions";
+import { setIsAuthenticate, setIsLogin, setUserInfo } from "../actions/userActions";
 import authentication from "../adapters/authentication";
 
 import Login from "../components/auth/Login";
 import Signup from "../components/auth/Signup";
+import VixenLogo from "../components/common/VixenLogo";
 import ToastMessageContainer from "../components/ToastMessageContainer";
 
 import "../styles/AuthPage.css";
 
-const useStyles = makeStyles((theme) => ({
-  backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    color: "#fff",
-  },
-}));
-
 function AuthPage({ popup = false }) {
-  const [isOpen, setIsOpen] = useState(true);
-  const { isLogin } = useSelector((state) => state.userReducer);
-  const { isAuthenticate } = useSelector((state) => state.userReducer);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const { isLogin, isAuthenticate } = useSelector((state) => state.userReducer);
   const history = useHistory();
   const dispatch = useDispatch();
-  const classes = useStyles();
 
   useEffect(() => {
     if (!isAuthenticate) {
-      setIsOpen(true);
+      setCheckingAuth(true);
       authentication()
         .then((res) => {
           dispatch(setIsAuthenticate(res.isAuth));
           dispatch(setUserInfo(res.user));
-          setIsOpen(false);
-          history.push("/");
+          if (res.isAuth) {
+            history.push("/");
+          }
         })
-        .catch((err) => {
-          setIsOpen(false);
-        });
+        .catch(() => {})
+        .finally(() => setCheckingAuth(false));
+    } else {
+      setCheckingAuth(false);
     }
-  }, [isAuthenticate]);
+  }, [isAuthenticate, dispatch, history]);
+
+  const perks = [
+    "Track orders & delivery updates",
+    "Save items to your wishlist",
+    "Faster checkout with saved details",
+  ];
 
   return (
-    <div className={popup ? "login_popup" : "login"}>
-      <div className="container_left">
-        <div>
-          <span className="title">
-            {isLogin ? "Login" : "Looks like you're new here!"}
-          </span>
-          <p className="subtitle">
-            {isLogin
-              ? "Get access to your Orders, Wishlist and Recommendations"
-              : "Sign up with your mobile number to get started"}
-          </p>
-        </div>
+    <div className={`auth-page ${popup ? "auth-page--popup" : ""}`}>
+      <div className="auth-card">
+        <aside className="auth-card__aside">
+          <div className="auth-card__brand">
+            <VixenLogo light />
+          </div>
+
+          <div className="auth-card__heading">
+            <span className="auth-card__title">
+              {isLogin ? "Welcome back" : "Join Vixen Fashion"}
+            </span>
+            <p className="auth-card__subtitle">
+              {isLogin
+                ? "Sign in with your email and password."
+                : "Create an account with your email, name and password."}
+            </p>
+          </div>
+
+          <ul className="auth-card__perks">
+            {perks.map((perk) => (
+              <li key={perk}>{perk}</li>
+            ))}
+          </ul>
+        </aside>
+
+        <main className="auth-card__main">
+          <div className="auth-tabs" role="tablist">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={isLogin}
+              className={`auth-tabs__btn ${isLogin ? "auth-tabs__btn--active" : ""}`}
+              onClick={() => dispatch(setIsLogin(true))}
+            >
+              Login
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={!isLogin}
+              className={`auth-tabs__btn ${!isLogin ? "auth-tabs__btn--active" : ""}`}
+              onClick={() => dispatch(setIsLogin(false))}
+            >
+              Create Account
+            </button>
+          </div>
+
+          {isLogin ? <Login /> : <Signup />}
+        </main>
       </div>
-      <div className="container_right">{isLogin ? <Login /> : <Signup />}</div>
-      <Backdrop className={classes.backdrop} open={isOpen}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
+
+      {checkingAuth && (
+        <div className="auth-loading" aria-busy="true" aria-label="Checking session">
+          <CircularProgress size={36} className="auth-loading__spinner" />
+        </div>
+      )}
+
       <ToastMessageContainer />
     </div>
   );

@@ -3,6 +3,7 @@ import * as actionType from "../action-type/userActionType";
 const initialState = {
   isLogin: true,
   phoneNumber: "",
+  authEmail: "",
   popupLogin: true,
   isModalOpen: false,
   OTPResult: {},
@@ -18,6 +19,8 @@ const userReducer = (state = initialState, action) => {
       return { ...state, isLogin: action.payload.isLogin };
     case actionType.SET_MOBILE_NUMBER:
       return { ...state, phoneNumber: action.payload.phoneNumber };
+    case actionType.SET_AUTH_EMAIL:
+      return { ...state, authEmail: action.payload.authEmail };
     case actionType.SET_IS_AUTHENTICATE:
       return { ...state, isAuthenticate: action.payload.isAuthenticate };
     case actionType.SET_USER_INFO:

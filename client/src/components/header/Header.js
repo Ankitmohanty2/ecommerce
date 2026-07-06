@@ -1,122 +1,102 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  AppBar,
-  Toolbar,
-  makeStyles,
-  Box,
-  Typography,
-  IconButton,
-  Drawer,
-} from "@material-ui/core";
-import { Menu } from "@material-ui/icons";
-
-import SearchBar from "./SearchBar";
-import HeaderMenu from "./HeaderMenu";
-import ListMenu from "./ListMenu";
-
-const useStyle = makeStyles((theme) => ({
-  header: {
-    backgroundColor: "#2874f0",
-    height: 60,
-    paddingLeft: "10%",
-    lineHeight: 0,
-    display: "flex",
-    justifyContent: "center",
-    boxShadow: "none",
-    [theme.breakpoints.down("md")]: {
-      justifyContent: "space-between",
-    },
-  },
-
-  header_logo: {
-    objectFit: "contain",
-    width: 75,
-    marginTop: 5,
-  },
-  header_container: {
-    display: "flex",
-    alignItems: "center",
-  },
-  header_subtitle: {
-    fontSize: 11,
-    fontStyle: "italic",
-    fontWeight: 600,
-    textDecoration: "none",
-  },
-  header_icon: {
-    objectFit: "contain",
-    height: 10,
-    marginLeft: 3,
-    alignSelf: "start",
-  },
-  menuButton: {
-    display: "none",
-    [theme.breakpoints.down("md")]: {
-      display: "block",
-      marginRight: "7%",
-      marginLeft: "-10%",
-    },
-  },
-}));
-
-function Header() {
-  const classes = useStyle();
-
-  const [open, setOpen] = useState(false);
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  return (
-    <div className="header">
-      <AppBar className={classes.header}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            className={classes.menuButton}
-            onClick={handleOpen}
-          >
-            <Menu />
-          </IconButton>
-
-          <Drawer open={open} onClose={handleClose}>
-            <ListMenu handleClose={handleClose} />
-          </Drawer>
-          <Link to="/">
-            <Box className={classes.logo_Container}>
-              {/* logo */}
-              <img
-                className={classes.header_logo}
-                src="https://static-assets-web.flixcart.com/www/linchpin/fk-cp-zion/img/flipkart-plus_8d85f4.png"
-                alt="Flipkart"
-              />
-              {/* Explore plus part  */}
-              <Box className={classes.header_container}>
-                <Typography className={classes.header_subtitle}>
-                  <Link to="/plus">
-                    Explore <span style={{ color: "#ffe500" }}>Plus</span>
-                  </Link>
-                </Typography>
-                <img
-                  className={classes.header_icon}
-                  src="https://static-assets-web.flixcart.com/www/linchpin/fk-cp-zion/img/plus_aef861.png"
-                  alt=""
-                />
-              </Box>
-            </Box>
-          </Link>
-          <SearchBar />
-          <HeaderMenu />
-        </Toolbar>
-      </AppBar>
-    </div>
-  );
-}
-
-export default Header;
+import React, { useState } from "react";
+import { Link, useHistory } from "react-router-dom";
+import SearchBar from "./SearchBar";
+import HeaderMenu from "./HeaderMenu";
+import VixenLogo from "../common/VixenLogo";
+
+import "../../styles/Header.css";
+
+const PRIMARY_NAV = [
+  { id: "ladies", label: "Women" },
+  { id: "men", label: "Men" },
+  { id: "kids", label: "Kids" },
+  { id: "home", label: "Home" },
+  { id: "all", label: "All Brands" },
+];
+
+const MORE_NAV = [
+  { id: "dresses", label: "Dresses" },
+  { id: "tops", label: "Tops" },
+  { id: "shirts", label: "Shirts" },
+  { id: "shoes", label: "Shoes" },
+  { id: "bags", label: "Bags" },
+  { id: "jewellery", label: "Jewellery" },
+  { id: "watches", label: "Watches" },
+  { id: "beauty", label: "Beauty" },
+  { id: "fragrances", label: "Fragrances" },
+  { id: "skincare", label: "Skincare" },
+  { id: "accessories", label: "Accessories" },
+  { id: "sale", label: "Sale", isSale: true },
+];
+
+function Header({ activeCategory = "all", onCategoryChange }) {
+  const history = useHistory();
+  const [moreOpen, setMoreOpen] = useState(false);
+
+  const handleNav = (id) => {
+    if (onCategoryChange) {
+      onCategoryChange(id);
+      if (history.location.pathname !== "/") {
+        history.push("/");
+      }
+    }
+    setMoreOpen(false);
+  };
+
+  const isMoreActive = MORE_NAV.some((item) => item.id === activeCategory);
+
+  return (
+    <header className="header">
+      <div className="header__top">
+        <Link to="/" className="header__logo" aria-label="Vixen Fashion home">
+          <VixenLogo />
+        </Link>
+
+        <nav className="header__nav-main">
+          {PRIMARY_NAV.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`header__nav-link-main ${activeCategory === item.id ? "header__nav-link-main--active" : ""}`}
+              onClick={() => handleNav(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+          <div
+            className="header__more"
+            onMouseEnter={() => setMoreOpen(true)}
+            onMouseLeave={() => setMoreOpen(false)}
+          >
+            <button
+              type="button"
+              className={`header__nav-link-main ${isMoreActive ? "header__nav-link-main--active" : ""}`}
+            >
+              More
+            </button>
+            {moreOpen && (
+              <div className="header__more-menu">
+                {MORE_NAV.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`header__more-item ${item.isSale ? "header__more-item--sale" : ""}`}
+                    onClick={() => handleNav(item.id)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </nav>
+
+        <SearchBar />
+
+        <HeaderMenu />
+      </div>
+    </header>
+  );
+}
+
+export default Header;

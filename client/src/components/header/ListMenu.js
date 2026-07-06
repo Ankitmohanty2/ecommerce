@@ -34,7 +34,7 @@ const useStyle = makeStyles((theme) => ({
     color: "#0000",
   },
   icon: {
-    color: "#2874f0",
+    color: "#6c3ce9",
   },
   text: {
     color: "#0C0C0C",

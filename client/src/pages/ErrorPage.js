@@ -28,7 +28,7 @@ function ErrorPage() {
           Unfortunately the page you are looking for has been moved or deleted
         </div>
         <Button
-          style={{ backgroundColor: "#2874f0" }}
+          style={{ backgroundColor: "#6c3ce9" }}
           variant="contained"
           color="primary"
         >

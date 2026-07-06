@@ -1,4 +1,9 @@
-import firebaseApp from "../adapters/firebase";
+/**
+ * LEGACY — Firebase phone OTP (commented out, not used).
+ * Active auth uses email + password with backend email OTP.
+ */
+/*
+import "../adapters/firebase";
 import {
   getAuth,
   RecaptchaVerifier,
@@ -18,16 +23,15 @@ const sendOtp = async (phoneNumber) => {
     auth
   );
   const appVerifier = window.recaptchaVerifier;
-  try {
-    const confirmationResult = await signInWithPhoneNumber(
-      auth,
-      phoneNumber,
-      appVerifier
-    );
-    return confirmationResult;
-  } catch (error) {
-    throw error;
-  }
+  const confirmationResult = await signInWithPhoneNumber(
+    auth,
+    phoneNumber,
+    appVerifier
+  );
+  return confirmationResult;
 };
 
 export default sendOtp;
+*/
+
+export {};

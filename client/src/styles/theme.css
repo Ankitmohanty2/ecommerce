@@ -1,0 +1,19 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  --primary: #000000;
+  --primary-dark: #000000;
+  --accent: #e50010;
+  --accent-hover: #c4000d;
+  --header-bg: #ffffff;
+  --header-text: #142536;
+  --header-border: #e8e8e8;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --image-bg: #e8e8e8;
+  --text: #222222;
+  --text-muted: #666666;
+  --border: #e0e0e0;
+  --header-height: 72px;
+  --font: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}

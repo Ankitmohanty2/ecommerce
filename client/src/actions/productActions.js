@@ -1,36 +1,37 @@
 import * as actionType from "../action-type/productActionType";
-import axios from "../adapters/axios";
+import {
+  fetchAllProducts,
+  fetchProductById,
+  fetchByCategory,
+  fetchSaleProducts,
+} from "../adapters/catalog";
 
 export const getProducts = () => async (dispatch) => {
   try {
-    const { data } = await axios.get("/products/get-products");
+    const products = await fetchAllProducts();
     dispatch({
       type: actionType.GET_PRODUCTS,
-      payload: {
-        products: data,
-      },
+      payload: { products },
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const getProductById = (id) => async (dispatch) => {
   try {
-    const { data } = await axios.get(`/products/get-product/${id}`);
+    const product = await fetchProductById(id);
     dispatch({
       type: actionType.GET_PRODUCT_BY_ID,
-      payload: {
-        product: data,
-      },
+      payload: { product: product || {} },
     });
-  } catch (error) {}
-};
-
-export const getProductsByCategory = async(name) => {
-  try {
-    const { data } = await axios.get(`/products/get-products/${name}`);
-    return data;
   } catch (error) {
     console.log(error);
-    return null;
   }
+};
+
+export const getProductsByCategory = async (name) => {
+  if (name === "sale") return fetchSaleProducts();
+  if (name === "all") return fetchAllProducts();
+  return fetchByCategory(name);
 };

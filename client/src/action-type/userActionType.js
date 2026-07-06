@@ -1,3 +1,4 @@
+export const SET_AUTH_EMAIL = "setAuthEmail";
 export const SET_VERIFICATION_CODE="setVerificationCode";
 export const SET_IS_LOGIN="setIsLogin";
 export const SET_MOBILE_NUMBER="setMobileNumber";

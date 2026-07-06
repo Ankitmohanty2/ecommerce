@@ -121,7 +121,7 @@ function OrdersPage() {
             className={classes.btn}
             color="primary"
             onClick={() => window.location.replace("/")}
-            style={{ background: "#2874f0", textTransform: "capitalize" }}
+            style={{ background: "#6c3ce9", textTransform: "capitalize" }}
           >
             {" "}
             Start Shopping
